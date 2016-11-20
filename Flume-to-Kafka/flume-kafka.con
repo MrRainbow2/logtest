@@ -1,0 +1,31 @@
+agent.sources = s1
+agent.sinks = k1 
+agent.channels = c1 
+
+
+
+agent.sources.s1.type = spooldir  
+agent.sources.s1.spoolDir = /data/bootcamp/practise/sogouquery/data/generated/
+agent.sources.s1.inputCharset=GBK
+agent.sources.s1.deserializer.maxLineLength=3000
+agent.sources.s1.deserializer.outputCharset=UTF-8
+agent.sources.s1.fileHeader=true
+agent.sources.s1.fileHeaderKey = key
+
+
+agent.sources.s1.channels=c1
+
+agent.channels.c1.type=memory
+agent.channels.c1.capacity=10000
+agent.channels.c1.transactionCapacity=100
+
+agent.sinks.k1.type = org.apache.flume.sink.kafka.KafkaSink
+
+agent.sinks.k1.brokerList=DX-1:9092
+
+agent.sinks.k1.topic=logTopic3
+
+agent.sinks.k1.serializer.class=kafka.serializer.StringEncoder
+
+
+agent.sinks.k1.channel=c1

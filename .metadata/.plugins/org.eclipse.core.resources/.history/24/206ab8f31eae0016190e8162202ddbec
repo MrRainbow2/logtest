@@ -1,0 +1,64 @@
+package main.java.cn.chinahadoop.practise.hdfsConsumer;
+
+import java.io.IOException;
+
+import kafka.consumer.ConsumerIterator;
+import kafka.consumer.KafkaStream;
+import kafka.message.MessageAndMetadata;
+
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
+public class SubTaskConsumer implements Runnable {
+    private KafkaStream m_stream;
+    private int m_threadNumber;
+    FileSystem hdfs;
+    private String m_destDdir = "/kafkasource";
+    public SubTaskConsumer(KafkaStream a_stream, int a_threadNumber,FileSystem fs) {
+        m_threadNumber = a_threadNumber;
+        m_stream = a_stream;
+        hdfs = fs;
+        System.out.println("come in 11111111");
+    }
+
+    public void run() {
+    	Path path = new Path("/user/shen/tt/test.txt");
+		// writing
+		try {
+			FSDataOutputStream dos = hdfs.create(path);
+			ConsumerIterator<byte[], byte[]> it = m_stream.iterator();
+	        while (it.hasNext()){
+	        	MessageAndMetadata<byte[], byte[]> info = it.next();
+	        	byte[] keybytes = info.key();
+	        	byte[] message = info.message();
+	        	String date = "2016-11-18";
+	        	if (keybytes!=null){
+	        		String fileName = new String(keybytes);
+	        		int lastIndex = fileName.lastIndexOf(".");
+	        		date = fileName.substring(lastIndex+1);
+	        	}
+	        	writeToFile(date,message);
+	        }
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    private void writeToFile(String date,byte[] message){
+    	String year = date.substring(0, 4);
+    	String month = date.substring(4, 6);
+    	String day = date.substring(6);
+    	String pathString = m_destDdir +"/" + year + "/" + month + "/" + day +"/kafka" +m_threadNumber ;
+    	Path  path = new Path(pathString);
+    	if (outputFileName==null || dos==null||!pathString.equals(outputFileName)){
+    		if (dos!=null){
+    			synchronized (syncObj){
+    				dos.flush();
+    				dos.close();
+    			}
+    			hdfs.rename(new Path(outputFileName), new Path(outputFileName+"."+System.currentTimeMillis()+".Finished"));
+    		}
+    	}
+    	
+    }
+}

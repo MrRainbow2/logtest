@@ -1,0 +1,9 @@
+package hdfsConsumer;
+
+public class HdfsConsumer {
+	public static void main(String [] args){
+		
+		
+	}
+
+}
